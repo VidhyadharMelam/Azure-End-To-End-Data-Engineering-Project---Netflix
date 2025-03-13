@@ -1,0 +1,94 @@
+Data Transformation
+
+Goal:
+	The goal of data transformation is to clean, enrich, and structure the raw data from the Bronze Layer into a meaningful, analytical model in the Gold Layer. 	The transformation process was handled using Databricks and PySpark to process large volumes of data efficiently and create a well-organized star schema for 	analytical reporting.
+
+Overview of the Data Transformation Process
+
+The transformation follows a structured Medallion Architecture using the following stages:
+
+	Bronze Layer: Ingest raw data from Netflix API and GitHub into Azure Data Lake Gen2.
+	Silver Layer: Clean and standardize data using PySpark in Databricks.
+	Gold Layer: Aggregate and model data into a star schema using Delta Live Tables (DLT).
+	Synapse + Power BI: Load data into Synapse for analysis and visualization.
+
+1. Silver Layer: PySpark Transformations
+	Once data is ingested into the Bronze Layer, the transformation process begins in Databricks using Auto Loader and PySpark.
+
+	1.1. Remove Null Values
+	Removed rows with null or missing values to ensure data integrity.
+
+	1.2. Convert Data Types
+	Converted data types for better compatibility and performance.
+
+	1.3. Extract Substrings
+	Extracted substring from the title column before a colon (:).
+	Extracted substring from the rating column before a hyphen (-).
+
+	1.4. Create Conditional Columns
+	Created a conditional column based on the type of content (Movie or TV Show).
+
+	1.5. Rank Values
+	Used window functions to assign rankings within the dataset.
+
+	1.6. Aggregations
+	Performed aggregations to calculate total content by type and rating.
+
+	1.7. Drop Duplicates
+	Dropped duplicate records to maintain data integrity.
+
+	1.8. Store in Silver Layer (Parquet Format)
+	Stored the cleaned and transformed data in the Silver Layer in Parquet format for better compression and performance.
+
+
+2. Gold Layer: Delta Live Tables (DLT) for Star Schema
+	After data is transformed in the Silver Layer, it is modeled into a star schema in the Gold Layer using Delta Live Tables (DLT).
+
+	2.1. Star Schema Overview
+	Fact Table: netflix_titles_csv – Core business data.
+	Dimension Tables:
+	netflix_directors – Lookup for director names.
+	netflix_countries – Lookup for country names.
+	netflix_category – Lookup for movie or TV show categories.
+	netflix_cast – Lookup for actor and actress names.
+
+	2.2. Create Delta Live Tables
+	Defined Delta Live Tables to automatically update data using streaming.
+
+	2.3. Create Fact Table
+	Fact table includes measures such as total_content, total_duration, and ranking data.
+
+	2.4. Create Dimension Tables
+	Each dimension table stores lookup data for easy reference.
+
+	2.5. Manage Surrogate Keys
+	Generated surrogate keys for better indexing and faster joins.
+
+	2.6. Store in Gold Layer (Delta Lake Format)
+	Stored data in Delta format to enable ACID transactions and versioning.
+
+
+3. Load into Synapse for Reporting
+	Loaded the transformed Gold Layer data into Synapse using Azure Data Factory.
+	Connected Synapse to Power BI for visualization and reporting.
+
+4. Data Flow in Transformation
+	Bronze Layer → Raw data from Netflix API and GitHub
+	Silver Layer → Cleaned and transformed using PySpark
+	Gold Layer → Modeled into star schema using Delta Live Tables
+	Synapse → Loaded into Synapse for reporting
+	Power BI → Created reports and dashboards
+
+Key Features
+	Clean and structured data for analytics.
+	Optimized query performance using Delta Lake format.
+	Star schema model enables fast joins and aggregations.
+	Supports both batch and real-time processing.
+
+Business Value
+	Improved query performance with Delta Lake format.
+	Better scalability and data consistency using Delta Live Tables.
+	Enhanced reporting and insights with star schema.
+
+
+
