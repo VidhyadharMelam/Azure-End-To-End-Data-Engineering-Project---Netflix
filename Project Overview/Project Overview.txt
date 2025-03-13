@@ -1,0 +1,52 @@
+Project Overview: Netflix Data Pipeline
+
+Goal:
+	The goal of this project was to build a scalable, automated, and dynamic data engineering pipeline to process Netflix data from both the Netflix API and 	GitHub. The business objective was to create a centralized data warehouse to enable effective reporting and insights into Netflix content such as available 	titles, directors, genres, countries, and cast information. The solution involved setting up a fully automated ETL pipeline using Azure services and Databricks 	to handle data ingestion, transformation, and loading into a structured format for business intelligence.
+
+Business Problem
+	Netflix maintains a large catalog of content (movies, TV shows, etc.) with associated metadata such as genres, countries, cast, and ratings. The challenges 	included:
+
+	1- Handling incremental data ingestion from the Netflix API.
+	2- Cleaning and transforming data to create a structured schema.
+	3- Joining lookup tables (e.g., directors, countries) with the master data.
+	4- Ensuring scalability for large datasets and low-latency reporting.
+
+Solution:
+
+1- Data Ingestion
+
+	Used Azure Data Factory (ADF) to pull data incrementally from the Netflix API and GitHub.
+	Created dynamic and parameterized pipelines using Copy Activity, ForEach Activity, Web Activity, and Set Variable Activity.
+	Stored data in the Bronze Layer in Azure Data Lake Gen2.
+
+2- Data Transformation
+
+	Used Databricks Auto Loader to incrementally load data into the Silver Layer.
+	Performed transformations in PySpark:
+	Removed null values and converted data types.
+	Extracted substrings from title and rating columns.
+	Created a conditional column for content type (movie = 1, else = 0).
+	Ranked and aggregated data for better reporting.
+
+3- Data Warehouse and Schema
+
+	Created a star schema with:
+	Master table: netflix_titles_csv
+	Lookup tables: netflix_directors, netflix_countries, netflix_category, netflix_cast
+	Implemented surrogate keys for better joins and indexing.
+
+4- Gold Layer and Delta Live Tables
+
+	Created a Delta Live Table (DLT) pipeline to populate the Gold Layer.
+	Configured DLT to handle schema evolution and automatic optimizations.
+
+5- Workflow Automation
+
+	Built parameterized notebooks and workflows using dbutils.jobs.
+	Configured ForEach and If-Else conditions to enable dynamic execution.
+	Managed dependencies and retries using Databricks Workflows.
+
+6- Data Loading and Reporting
+
+	Loaded the final data into Azure Synapse Analytics for reporting.
+	Connected Synapse to Power BI to create interactive dashboards.
