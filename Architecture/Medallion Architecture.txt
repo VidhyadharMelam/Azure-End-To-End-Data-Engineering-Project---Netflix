@@ -1,0 +1,56 @@
+Data Architecture: Medallion Architecture
+
+Goal:
+
+	The Medallion Architecture is designed to organize data into multiple layers (Bronze, Silver, and Gold) to enable efficient data processing, transformation, 	and analysis. This architecture improves scalability, data quality, and processing performance by creating a structured and organized flow of data.
+
+Medallion Architecture Overview:
+The data pipeline follows the three-tier Medallion Architecture:
+
+1. Bronze Layer (Raw Layer) → Ingestion Layer
+	Stores raw, unprocessed data directly from the source.
+	Data is stored in its original format (CSV, JSON) to maintain fidelity.
+	Incremental data ingestion from:
+	Netflix API using Azure Data Factory
+	GitHub using Azure Data Factory
+	Auto Loader reads from this layer incrementally.
+	
+
+	Purpose:
+	Store raw data for traceability and auditing.
+	Handle schema evolution and new fields without breaking the pipeline.
+
+2. Silver Layer (Cleaned Layer) → Transformation Layer
+	Data is read from the Bronze layer using Databricks Auto Loader.
+	Cleaned and transformed using PySpark:
+	Remove null values and type conversion.
+	Extract substrings from title and rating columns.
+	Create conditional columns (e.g., content type).
+	Rank and aggregate values.
+	Stored in Parquet format for better query performance.
+
+	Purpose:
+	Improve data quality and consistency.
+	Enable structured queries and joins.
+	Optimize data for downstream processing.
+
+3. Gold Layer (Aggregated Layer) → Analytics Layer
+	Created using Delta Live Tables (DLT).
+	Data is modeled into a star schema:
+	Fact Table: netflix_titles_csv
+	Dimension Tables: netflix_directors, netflix_countries, netflix_category, netflix_cast
+	Stored in Delta Lake format for fast querying and versioning.
+	Supports ACID transactions and schema evolution.
+	Data is ready for consumption by Azure Synapse and Power BI.
+
+	Purpose:
+	Create a structured schema for business intelligence.
+	Support complex queries and aggregations.
+	Improve reporting and analytics.
+
+Data Flow in Medallion Architecture:
+
+	Bronze Layer: Incremental ingestion from Netflix API and GitHub using Azure Data Factory.
+	Silver Layer: Clean and transform data using Databricks Auto Loader and PySpark.
+	Gold Layer: Aggregate and model data using Delta Live Tables.
+	Synapse + Power BI: Load data into Synapse for reporting and analysis using Power BI.
