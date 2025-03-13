@@ -1,0 +1,26 @@
+[
+	{
+		"folder_name" : "netflix_cast",
+		"file_name" : "netflix_cast.csv"
+	},
+	{
+		"folder_name" : "netflix_category",
+		"file_name" : "netflix_category.csv"
+	},
+	{
+		"folder_name" : "netflix_countries",
+		"file_name" : "netflix_countries.csv"
+	},
+	{
+		"folder_name" : "netflix_directors",
+		"file_name" : "netflix_directors.csv"
+	}
+]
+	
+
+[ { "folder_name" : "netflix_cast", "file_name" : "netflix_cast.csv" }, { "folder_name" : "netflix_category", "file_name" : "netflix_category.csv" 	}, { 		"folder_name" : "netflix_countries", "file_name" : "netflix_countries.csv" }, { "folder_name" : "netflix_directors", "file_name" : "netflix_directors.csv" } ] 	
+
+
+
+[{"folder_name":"netflix_cast","file_name":"netflix_cast.csv"} ,{"folder_name":"netflix_category","file_name":"netflix_category.csv"},{"folder_name":"netflix_countries","file_name":netflix_countries.csv"} ,{"folder_name":"netflix_directors","file_name":netflix_directors.csv"}] 
+
