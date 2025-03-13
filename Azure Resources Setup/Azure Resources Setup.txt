@@ -1,0 +1,127 @@
+Azure Resources Setup
+
+Goal
+	A detailed guide on setting up the necessary Azure resources required to build the Netflix data pipeline. This includes provisioning storage, compute, data 	orchestration, and security configurations.
+
+1. Azure Account Setup
+	Create an Azure Free Account
+	Go to https://azure.microsoft.com.
+	Click "Start Free" and sign in with your Microsoft account.
+	Complete the registration process.
+	$200 free credit for the first 30 days.
+
+2. Create Azure Resources
+	2.1. Create an Azure Resource Group
+	Sign in to the Azure portal → Search for "Resource Groups".
+	Click "Create" → Enter:
+	Subscription: Free Trial
+	Resource Group Name: netflix-project-rg
+	Region: Select the closest region (e.g., East US)
+	Click "Review + Create" → Create
+
+	2.2. Create an Azure Data Lake Storage (ADLS) Gen2
+	In the Azure portal → Search for "Storage Accounts"
+	Click "Create" → Enter:
+	Subscription: Free Trial
+	Resource Group: netflix-project-rg
+	Storage Account Name: netflixdatastorage
+	Region: East US
+	Performance: Standard
+	Redundancy: LRS (Locally Redundant Storage)
+	Enable Hierarchical Namespace: ✅ (Required for ADLS Gen2)
+	Click "Review + Create" → Create
+
+	2.3. Create Containers in ADLS
+	Go to the newly created storage account → Containers
+	Create the following containers:
+	bronze – For raw data
+	silver – For cleaned and processed data
+	gold – For aggregated data
+	raw – For backup and additional raw data
+
+
+	abfss://bronze@netflixdatastorage.dfs.core.windows.net/
+	abfss://silver@netflixdatastorage.dfs.core.windows.net/
+	abfss://gold@netflixdatastorage.dfs.core.windows.net/
+
+	2.4. Create an Azure Data Factory (ADF)
+	In the Azure portal → Search for "Data Factory"
+	Click "Create" → Enter:
+	Subscription: Free Trial
+	Resource Group: netflix-project-rg
+	Region: East US
+	Name: netflix-datafactory
+	Click "Review + Create" → Create
+
+	2.5. Create an Azure Databricks Workspace
+	In the Azure portal → Search for "Databricks"
+	Click "Create" → Enter:
+	Subscription: Free Trial
+	Resource Group: netflix-project-rg
+	Workspace Name: netflix-databricks-ws
+	Region: East US
+	Pricing Tier: Standard
+	Click "Review + Create" → Create
+
+	2.6. Configure Databricks with Access Connector
+	In the Databricks portal → Go to "Data" → "Create External Location"
+	Set up connection to ADLS using an Access Connector:
+	Go to Databricks → External Location
+	Enter:
+	Storage Account Name: netflixdatastorage
+	Mount Point: /mnt/bronze, /mnt/silver, /mnt/gold
+	Create a Service Principal with the following permissions:
+	Storage Blob Data Contributor
+	Storage Blob Data Reader
+	
+
+	2.7. Create an Azure Synapse Analytics Workspace
+	In the Azure portal → Search for "Synapse Analytics"
+	Click "Create" → Enter:
+	Subscription: Free Trial
+	Resource Group: netflix-project-rg
+	Name: netflix-synapse
+	Region: East US
+	Data Lake Storage: netflixdatastorage
+	Security: Managed Identity
+	Click "Review + Create" → Create
+
+	2.8. Connect Synapse to ADLS
+	In Synapse Studio → Go to "Data" → "Linked Services"
+	Select "Azure Data Lake Storage Gen2"
+	Enter the following:
+	Account URL: https://netflixdatastorage.dfs.core.windows.net/
+	Authentication: Managed Identity
+	Click "Test Connection" → Save
+
+	2.9. Set Up Unity Catalog
+	In Databricks → Create Unity Catalog
+	Assign Databricks workspace to Unity Catalog
+	Create the following catalogs and external locations:
+	Catalog: netflix_catalog
+	Schema: netflix_schema
+	Checkpoint Location: /mnt/checkpoints
+
+	2.10. Create Power BI Connection
+	Open Power BI → Go to "Get Data"
+	Select "Azure Synapse Analytics"
+	Enter Synapse workspace name and credentials
+	Import tables and create reports
+
+Summary of Azure Resources
+
+Resource				Name					Purpose
+Resource Group				netflix-project-rg			Organize all resources
+Storage Account				netflixdatastorage			Data storage for Bronze, Silver, and Gold layers
+Data Factory				netflix-datafactory			Data orchestration and ingestion
+Databricks				netflix-databricks-ws			Data transformation and processing
+Access Connector			metflix_access_connector_ac		Connect Databricks to ADLS
+Synapse					netflix-synapse				Data warehousing and analysis
+Unity Catalog				netflix_catalog				Schema management and governance
+Power BI					-				Data visualization and reporting
+
+Business Value
+	Simplified resource management using Resource Groups.
+	Secure data handling with Managed Identity and Access Connectors.
+	Scalable solution using Databricks and Synapse.
+	Unified governance with Unity Catalog.
