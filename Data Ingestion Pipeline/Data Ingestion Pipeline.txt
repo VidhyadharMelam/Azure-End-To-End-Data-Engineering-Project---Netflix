@@ -1,0 +1,97 @@
+Data Ingestion Pipeline
+
+Goal
+	The goal of the data ingestion pipeline is to automate the extraction of data from the Netflix API and GitHub and load it incrementally into the Bronze Layer 	in Azure Data Lake Gen2 using Azure Data Factory (ADF). The pipeline is designed to handle incremental loads, parameterization, and error handling to ensure 	data consistency and scalability.
+
+Ingestion Design Overview
+
+	The data ingestion pipeline was built using the following components in Azure Data Factory (ADF):
+
+	Component			Purpose				Description
+Copy Activity				Data movement			Transfers data from the Netflix API and GitHub to Data Lake.
+ForEach Activity			Looping				Iterates through an array of values (e.g., file names).
+Web Activity				API call			Triggers REST API to fetch Netflix data.
+Set Variable Activity			Dynamic pipeline		Stores dynamic values (e.g., file names).
+Validation Activity			Data quality check		Ensures data integrity before processing.
+
+
+Data Sources
+
+1. Netflix API (Main Source)
+	Used Web Activity to call the Netflix API endpoint.
+	Captured data in JSON format.
+	Stored data in the Bronze Layer of Azure Data Lake Gen2.
+	Used incremental loading to pull only new or updated records.
+
+
+2. GitHub (Lookup Tables)
+	Used Copy Activity to extract lookup tables from GitHub.
+	Pulled CSV files for:
+	netflix_directors
+	netflix_countries
+	netflix_category
+	netflix_cast
+	Stored data in the Bronze Layer in Azure Data Lake Gen2.
+
+Pipeline Steps:
+
+Step 1: Parameterized Pipeline Design
+	Created pipeline-level parameters to handle dynamic values.
+	Used Set Variable Activity to store:
+	API URL
+	GitHub path
+	Target file path
+	Parameterized URL
+
+
+Step 2: Web Activity (Netflix API)
+	Configured the Web Activity to:
+	Use GET method to fetch data.
+	Pass API key and headers for authentication.
+	Store response in the data lake.
+	
+Step 3: Copy Activity (GitHub Lookup Tables)
+	Configured Copy Activity to:
+	Use dynamic GitHub URL.
+	Load CSV files into Data Lake.
+	Store data in the Bronze Layer.
+
+Step 4: ForEach Activity
+	Created an array of file names (lookup tables).
+	Configured the pipeline to loop through each file and ingest data incrementally.
+
+[
+    "netflix_directors.csv",
+    "netflix_countries.csv",
+    "netflix_category.csv",
+    "netflix_cast.csv"
+]
+
+Step 5: Validation Activity
+	Ensured that files were ingested correctly before passing them to Databricks.
+	Stopped the pipeline if the validation failed.
+
+
+Incremental Loading Approach
+	Used databricks autoloader to handle incremental data ingestion:
+
+
+Pipeline Flow:
+
+	Web Activity → Call Netflix API → Store in Bronze Layer
+	Copy Activity → Ingest GitHub Lookup Tables → Store in Bronze Layer
+	ForEach Activity → Loop through all lookup tables
+	Validation Activity → Ensure data integrity
+	Autoloader Handling → Only pull new or modified records
+
+Key Features:
+	Dynamic Pipeline → Parameterized to handle different file types and sources.
+	Incremental Load → Pulls only new or modified records to reduce processing time.
+	Fault Tolerance → Validation activity ensures data integrity before processing.
+	Reusable Design → Lookup tables and main data load handled within the same pipeline.
+
+Business Value:
+	Reduced latency by loading only new data.
+	Ensured data integrity and consistency.
+	Simplified maintenance with parameterized design.
+
